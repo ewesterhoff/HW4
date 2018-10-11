@@ -144,7 +144,55 @@ output reg		Clk
     $display("Test Case 2 Failed");
   end
 
+  // Test Case 3:
+  //   Try to write '37' to register 2, verify with Read Ports 1 and 2
+  //   Write enable is off
+  WriteRegister = 5'd2;
+  WriteData = 32'd37;
+  RegWrite = 0;
+  ReadRegister1 = 5'd2;
+  ReadRegister2 = 5'd2;
+  #5 Clk=1; #5 Clk=0;
 
+  if((ReadData1 == 37) || (ReadData2 == 37)) begin
+    dutpassed = 0;
+    $display("Test Case 3 Failed");
+  end
+
+
+  // Test Case 4:
+  //   Write 33 to register 1, and 40 to register 2
+  // breaks if the decoder is wrong
+  WriteRegister = 5'd1;
+  WriteData = 32'd33;
+  RegWrite = 1;
+  #5 Clk=1; #5 Clk=0;
+
+  WriteRegister = 5'd2;
+  WriteData = 32'd40;
+  RegWrite = 1;
+  ReadRegister1 = 5'd1;
+  ReadRegister2 = 5'd2;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 !== 33) || (ReadData2 !== 40)) begin
+    dutpassed = 0;
+    $display("Test Case 4 Failed %b %b", ReadData1, ReadData2);
+  end
+
+  // Test Case 5:
+  //   Check register 0 is always 0
+  WriteRegister = 5'd0;
+  WriteData = 32'd37;
+  RegWrite = 1;
+  ReadRegister1 = 5'd0;
+  ReadRegister2 = 5'd0;
+  #5 Clk=1; #5 Clk=0;
+
+  if((ReadData1 !== 0) || (ReadData2 !== 0)) begin
+    dutpassed = 0;
+    $display("Test Case 5 Failed");
+  end
   // All done!  Wait a moment and signal test completion.
   #5
   endtest = 1;
