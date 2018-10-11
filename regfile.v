@@ -18,10 +18,22 @@ input		RegWrite,	// Enable writing of register when High
 input		Clk		// Clock (Positive Edge Triggered)
 );
 
-  // These two lines are clearly wrong.  They are included to showcase how the 
-  // test harness works. Delete them after you understand the testing process, 
-  // and replace them with your actual code.
-  assign ReadData1 = 42;
-  assign ReadData2 = 42;
 
+  wire[31:0] regFile[31:0];
+  wire[31:0] decoded;
+
+  assign ReadData1 = regFile[ReadRegister1];
+  assign ReadData2 = regFile[ReadRegister2];
+
+
+  decoder1to32 decoder(.out(decoded), .enable(RegWrite), .address(WriteRegister));
+
+  register32zero register(.q(regFile[0]), .d(WriteData), .wrenable(decoded[0]), .clk(Clk));
+
+  genvar i;
+  generate
+    for(i=1; i<32; i=i+1) begin
+      register32 register(.q(regFile[i]), .d(WriteData), .wrenable(decoded[i]), .clk(Clk));
+    end
+  endgenerate
 endmodule
